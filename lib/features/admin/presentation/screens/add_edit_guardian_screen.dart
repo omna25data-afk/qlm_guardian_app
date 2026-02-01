@@ -293,6 +293,7 @@ class _AddEditGuardianScreenState extends State<AddEditGuardianScreen> {
     );
   }
 
+  Widget _buildTextField(TextEditingController c, String label, IconData icon, {bool required = false, int maxLines = 1, TextInputType type = TextInputType.text}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: TextFormField(

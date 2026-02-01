@@ -118,8 +118,7 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
         Navigator.pop(ctx);
       },
     );
-      },
-    );
+
   }
 
   void _showFilterSheet() {
