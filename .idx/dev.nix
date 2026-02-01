@@ -7,6 +7,7 @@
   packages = [
     pkgs.jdk21
     pkgs.unzip
+    pkgs.gh
   ];
   # Sets environment variables in the workspace
   env = {};
@@ -17,8 +18,12 @@
       "Dart-Code.dart-code"
     ];
     workspace = {
-      # Runs when a workspace is first created with this `dev.nix` file
-      onCreate = { };
+      # Runs when a workspace is first created with this [dev.nix](cci:7://file:///f:/herd/custom_filment/guardian_app_github/.idx/dev.nix:0:0-0:0) file
+      onCreate = {
+          build-flutter = ''
+            flutter create . --platforms=android,ios
+          '';
+      };
       # To run something each time the workspace is (re)started, use the `onStart` hook
     };
     # Enable previews and customize configuration
@@ -30,7 +35,8 @@
           manager = "flutter";
         };
         android = {
-          command = ["flutter" "run" "--machine" "-d" "android" "-d" "localhost:5555"];
+          # تم التعديل هنا لتشغيل نسخة الإنتاج
+          command = ["flutter" "run" "--machine" "-d" "android" "-d" "localhost:5555" "--flavor" "prod" "-t" "lib/main_prod.dart"];
           manager = "flutter";
         };
       };
