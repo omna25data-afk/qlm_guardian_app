@@ -234,16 +234,7 @@ class _LicensesListTabState extends State<LicensesListTab> {
     );
   }
 
-  Widget _buildStatusBadge(String? text, String? colorName) {
-    Color color;
-    switch (colorName) {
-      case 'success': color = Colors.green; break;
-      case 'danger': color = Colors.red; break;
-      case 'warning': color = Colors.orange; break;
-      case 'primary': color = const Color(0xFF006400); break;
-      default: color = Colors.grey;
-    }
-
+  Widget _buildStatusBadge(String? text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(

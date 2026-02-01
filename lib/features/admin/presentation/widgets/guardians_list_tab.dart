@@ -215,7 +215,7 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
                   ),
                 ),
                 const SizedBox(width: 8),
-                ),
+
                 const SizedBox(width: 8),
                 _buildIconButton(Icons.filter_list, Colors.orange, _showFilterSheet), // Advanced Filter
                 const SizedBox(width: 8),
@@ -381,7 +381,7 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
                     ],
                   ),
                 ),
-                ),
+
                 // Smart Circles
                 _buildSmartCircle(
                     title: 'الهوية', 
