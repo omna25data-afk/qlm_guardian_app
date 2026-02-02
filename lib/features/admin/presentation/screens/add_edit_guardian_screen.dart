@@ -865,9 +865,8 @@ class _AreaSelectionSheetState extends State<_AreaSelectionSheet> {
                    )
               ],
             ),
-         ),
-             ),
           ),
-        );
-     }
+        ),
+      );
+    }
 }
