@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:guardian_app/features/admin/data/models/admin_guardian_model.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:guardian_app/features/admin/presentation/widgets/renewal_forms.dart';
+import 'package:guardian_app/features/admin/presentation/widgets/renew_card_sheet.dart';
+import 'package:guardian_app/features/admin/presentation/widgets/renew_license_sheet.dart';
 import 'package:guardian_app/features/admin/presentation/screens/guardian_renewals_screen.dart';
 
 class GuardianDetailsScreen extends StatelessWidget {

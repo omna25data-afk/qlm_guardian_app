@@ -98,14 +98,21 @@ class MyApp extends StatelessWidget {
             Provider.of<AdminGuardianRepository>(context, listen: false),
           ),
         ),
-        ChangeNotifierProvider(
-          create: (_) => AdminAreasProvider(
-            AdminAreasRepository(baseUrl: config.apiBaseUrl),
-          ),
+        ),
+        Provider<AdminAreasRepository>(
+          create: (_) => AdminAreasRepository(baseUrl: config.apiBaseUrl),
         ),
         ChangeNotifierProvider(
-          create: (_) => AdminAssignmentsProvider(
-            AdminAssignmentsRepository(baseUrl: config.apiBaseUrl),
+          create: (context) => AdminAreasProvider(
+            Provider.of<AdminAreasRepository>(context, listen: false),
+          ),
+        ),
+        Provider<AdminAssignmentsRepository>(
+          create: (_) => AdminAssignmentsRepository(baseUrl: config.apiBaseUrl),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => AdminAssignmentsProvider(
+            Provider.of<AdminAssignmentsRepository>(context, listen: false),
           ),
         ),
       ],
