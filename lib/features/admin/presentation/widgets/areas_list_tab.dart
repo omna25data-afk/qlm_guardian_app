@@ -198,7 +198,7 @@ class _AreaExpansionTileState extends State<_AreaExpansionTile> with AutomaticKe
          side: BorderSide(color: Colors.grey.withValues(alpha: 0.1))
       ),
       child: ExpansionTile(
-        tilePadding: EdgeInsets.only(right: 16, left: 16), // No indentation at tile level, handle content match
+        tilePadding: const EdgeInsets.only(right: 16, left: 16), // No indentation at tile level, handle content match
         leading: Icon(icon, color: color),
         title: Text(widget.area.name, style: const TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold)),
         subtitle: Text('ID: ${widget.area.id}', style: const TextStyle(fontSize: 10, color: Colors.grey)),
@@ -212,7 +212,7 @@ class _AreaExpansionTileState extends State<_AreaExpansionTile> with AutomaticKe
                 area: child, 
                 level: widget.level + 1, 
                 repository: widget.repository
-            )).toList()
+            ))
           else
             const SizedBox.shrink(),
           

@@ -274,7 +274,7 @@ class GuardianDetailsScreen extends StatelessWidget {
   
   // Need to fix context access in _buildGridItem above or pass it. 
   // Refactoring to helper function usage correctly.
-}
+
 
   Widget _buildListChips(BuildContext context, String title, List<String> items) {
     if (items.isEmpty) return const SizedBox.shrink();
