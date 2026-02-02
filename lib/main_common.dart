@@ -148,12 +148,12 @@ class MyApp extends StatelessWidget {
             titleTextStyle: TextStyle(fontFamily: 'Tajawal', fontSize: 20, fontWeight: FontWeight.bold),
           ),
 
-          cardTheme: CardTheme(
-            elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            color: Colors.white,
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-          ),
+          // cardTheme: CardTheme(
+          //   elevation: 2,
+          //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          //   color: Colors.white,
+          //   margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          // ),
 
           inputDecorationTheme: InputDecorationTheme(
             filled: true,
