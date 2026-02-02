@@ -27,19 +27,9 @@ if [ ! -f "build/app/outputs/flutter-apk/app-prod-release.apk" ]; then
     exit 1
 fi
 
-# 4. تجهيز ملف النشر
+# 4. نقل الملف إلى مجلد النشر
 echo -e "${GREEN}4. Preparing deployment...${NC}"
-cp build/app/outputs/flutter-apk/app-prod-release.apk deploy/Guardian_App_Latest.apk
+mkdir -p deploy/production
+cp build/app/outputs/flutter-apk/app-prod-release.apk deploy/production/app-prod-release.apk
 
-# 5. الرفع إلى GitHub
-echo -e "${GREEN}5. Pushing to GitHub...${NC}"
-# إعدادات Git المؤقتة لهذا السكريبت
-git config --global user.email "idx-builder@example.com"
-git config --global user.name "IDX Builder"
-
-git add deploy/Guardian_App_Latest.apk
-git commit -m "Deploy: New Release Build [$(date)]"
-git push origin main
-
-echo -e "${GREEN}=== تمت عملية النشر بنجاح! ===${NC}"
-echo "رابط التحميل المباشر: https://github.com/omna25data-afk/qlm_guardian_app/blob/main/deploy/Guardian_App_Latest.apk"
+echo -e "${GREEN}=== Build Successful! APK ready at deploy/production/app-prod-release.apk ===${NC}"
