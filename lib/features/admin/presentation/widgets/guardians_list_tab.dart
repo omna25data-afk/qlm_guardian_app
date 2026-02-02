@@ -13,41 +13,37 @@ class GuardiansListTab extends StatefulWidget {
   State<GuardiansListTab> createState() => _GuardiansListTabState();
 }
 
-class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _GuardiansListTabState extends State<GuardiansListTab> {
+  final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
   
-  // Sort/Filter State (Local for UI demo, can be hooked to API later)
+  // State
   String _sortOption = 'date_desc'; // date_desc, date_asc, name_asc, name_desc
+  String _selectedStatus = 'all'; // Replaces TabController index
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    _tabController.addListener(_handleTabSelection);
+    _scrollController.addListener(_onScroll);
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchData();
+      _fetchData(refresh: true);
     });
   }
 
-  void _handleTabSelection() {
-    if (_tabController.indexIsChanging) {
-      _fetchData();
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      final provider = Provider.of<AdminGuardiansProvider>(context, listen: false);
+      if (!provider.isLoading && provider.hasMore) {
+        _fetchData(refresh: false);
+      }
     }
   }
 
-  void _fetchData() {
-    final status = switch (_tabController.index) {
-      0 => 'all',
-      1 => 'active',
-      2 => 'stopped',
-      _ => 'all',
-    };
-    
+  void _fetchData({bool refresh = false}) {
     Provider.of<AdminGuardiansProvider>(context, listen: false)
-        .fetchGuardians(refresh: true, status: status, search: _searchController.text);
+        .fetchGuardians(refresh: refresh, status: _selectedStatus, search: _searchController.text);
   }
 
   void _onSearchChanged(String query) {
@@ -55,12 +51,13 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
     _debounce = Timer(const Duration(milliseconds: 500), () {
       Provider.of<AdminGuardiansProvider>(context, listen: false)
           .setSearchQuery(query);
+      _fetchData(refresh: true);
     });
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _scrollController.dispose();
     _searchController.dispose();
     _debounce?.cancel();
     super.dispose();
@@ -73,10 +70,7 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
      );
      
      if (result == true) {
-       _fetchData();
-     }
-     if (result == true) {
-       _fetchData();
+       _fetchData(refresh: true);
      }
   }
 
@@ -125,54 +119,61 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-             const Text('تصفية النتائج', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold, fontSize: 18)),
-             const SizedBox(height: 20),
-             const Text('حالة العمل', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold)),
-             const SizedBox(height: 10),
-             Wrap(
-               spacing: 10,
-               children: [
-                 _buildFilterChip('الكل', true),
-                 _buildFilterChip('على رأس العمل', false),
-                 _buildFilterChip('متوقف', false),
-               ],
-             ),
-             const SizedBox(height: 20),
-             SizedBox(
-               width: double.infinity,
-               child: ElevatedButton(
-                 onPressed: () {
-                   Navigator.pop(context);
-                   _fetchData();
-                 },
-                 style: ElevatedButton.styleFrom(
-                   backgroundColor: Theme.of(context).primaryColor,
-                   foregroundColor: Colors.white,
-                   padding: const EdgeInsets.symmetric(vertical: 12),
-                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                 ),
-                 child: const Text('تطبيق', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold)),
+      builder: (ctx) => StatefulBuilder( // Use StatefulBuilder to update sheet state
+        builder: (ctx, setSheetState) => Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+               const Text('تصفية النتائج', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold, fontSize: 18)),
+               const SizedBox(height: 20),
+               const Text('حالة العمل', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold)),
+               const SizedBox(height: 10),
+               Wrap(
+                 spacing: 10,
+                 children: [
+                   _buildFilterChip('الكل', 'all', setSheetState),
+                   _buildFilterChip('على رأس العمل', 'active', setSheetState),
+                   _buildFilterChip('متوقف', 'stopped', setSheetState),
+                 ],
                ),
-             )
-          ],
+               const SizedBox(height: 20),
+               SizedBox(
+                 width: double.infinity,
+                 child: ElevatedButton(
+                   onPressed: () {
+                     Navigator.pop(context);
+                     _fetchData(refresh: true);
+                   },
+                   style: ElevatedButton.styleFrom(
+                     backgroundColor: Theme.of(context).primaryColor,
+                     foregroundColor: Colors.white,
+                     padding: const EdgeInsets.symmetric(vertical: 12),
+                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                   ),
+                   child: const Text('تطبيق', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold)),
+                 ),
+               )
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildFilterChip(String label, bool isSelected) {
+  Widget _buildFilterChip(String label, String value, StateSetter setSheetState) {
+    bool isSelected = _selectedStatus == value;
     return ChoiceChip(
       label: Text(label, style: TextStyle(fontFamily: 'Tajawal', color: isSelected ? Colors.white : Colors.black)),
       selected: isSelected,
       selectedColor: Theme.of(context).primaryColor,
+      backgroundColor: Colors.grey[200],
       onSelected: (bool selected) {
-        // Implement filter logic
+        if (selected) {
+           setSheetState(() => _selectedStatus = value);
+           setState(() => _selectedStatus = value); // Sync with parent
+        }
       },
     );
   }
@@ -199,7 +200,7 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
                     ),
                     child: TextField(
                       controller: _searchController,
@@ -215,42 +216,14 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
                   ),
                 ),
                 const SizedBox(width: 8),
-
-                const SizedBox(width: 8),
-                _buildIconButton(Icons.filter_list, Colors.orange, _showFilterSheet), // Advanced Filter
+                _buildIconButton(Icons.filter_list, _selectedStatus != 'all' ? Colors.orange : Colors.grey, _showFilterSheet), // Advanced Filter
                 const SizedBox(width: 8),
                 _buildIconButton(Icons.sort, Colors.blue, _showSortSheet), // Sort
               ],
             ),
           ),
 
-          // Custom Tabs
-          Container(
-            height: 50,
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(25),
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 5)],
-            ),
-            child: TabBar(
-              controller: _tabController,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.grey[600],
-              indicator: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.circular(25),
-              ),
-              indicatorSize: TabBarIndicatorSize.tab,
-              dividerColor: Colors.transparent,
-              labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Tajawal'),
-              tabs: const [
-                Tab(text: 'الكل'),
-                Tab(text: 'على رأس العمل'),
-                Tab(text: 'متوقف'),
-              ],
-            ),
-          ),
+          // Removed TabBar Container
 
           // List Content
           Expanded(
@@ -265,6 +238,7 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
                 }
 
                 return ListView.separated(
+                  controller: _scrollController, // Added Controller
                   padding: const EdgeInsets.all(16),
                   itemCount: provider.guardians.length + (provider.hasMore ? 1 : 0),
                   separatorBuilder: (c, i) => const SizedBox(height: 16),
@@ -288,7 +262,7 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 5)],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5)],
       ),
       child: IconButton(
         icon: Icon(icon, color: color),
@@ -319,11 +293,10 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
     
     return Container(
       decoration: BoxDecoration(
-        color: Colors.blue.withValues(alpha: 0.05),
+        color: Colors.white, // Cleaner white background
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.blue.withValues(alpha: 0.1)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4)),
         ],
       ),
       child: Column(
@@ -342,7 +315,7 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: isActive ? Colors.green.withValues(alpha: 0.2) : Colors.red.withValues(alpha: 0.2), 
+                          color: isActive ? Colors.green.withOpacity(0.2) : Colors.red.withOpacity(0.2), 
                           width: 3
                         ),
                       ),
@@ -373,10 +346,11 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withValues(alpha: 0.1),
+                          color: Colors.grey[100],
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: Text('#م ${guardian.serialNumber}', style: const TextStyle(fontFamily: 'Tajawal', color: Colors.blue, fontSize: 11, fontWeight: FontWeight.bold)),
+                        // Removed '#م' prefix as requested
+                        child: Text(guardian.serialNumber, style: const TextStyle(fontFamily: 'Tajawal', color: Colors.black87, fontSize: 12, fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
@@ -404,14 +378,10 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
             ),
           ),
           
-          const Divider(height: 1),
+          const Divider(height: 1, indent: 16, endIndent: 16),
           
           // Bottom Section: Details Grid & Actions
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.grey[50], 
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16))
-            ),
+          Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
               children: [
@@ -434,14 +404,14 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                             color: Colors.blue.withValues(alpha: 0.1),
-                             borderRadius: BorderRadius.circular(8)
+                             color: Colors.blue.withOpacity(0.05),
+                             borderRadius: BorderRadius.circular(6)
                           ),
                           child: const Row(
                             children: [
-                              Icon(Icons.edit, size: 16, color: Colors.blue),
+                              Icon(Icons.edit, size: 14, color: Colors.blue),
                               SizedBox(width: 4),
-                              Text('تعديل', style: TextStyle(fontFamily: 'Tajawal', color: Colors.blue, fontSize: 12, fontWeight: FontWeight.bold))
+                              Text('تعديل', style: TextStyle(fontFamily: 'Tajawal', color: Colors.blue, fontSize: 11, fontWeight: FontWeight.bold))
                             ],
                           ),
                         ),
@@ -454,14 +424,14 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                             color: Colors.green.withValues(alpha: 0.1),
-                             borderRadius: BorderRadius.circular(8)
+                             color: Colors.green.withOpacity(0.05),
+                             borderRadius: BorderRadius.circular(6)
                           ),
                           child: const Row(
                             children: [
-                              Icon(Icons.visibility, size: 16, color: Colors.green),
+                              Icon(Icons.visibility, size: 14, color: Colors.green),
                               SizedBox(width: 4),
-                              Text('عرض', style: TextStyle(fontFamily: 'Tajawal', color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold))
+                              Text('عرض', style: TextStyle(fontFamily: 'Tajawal', color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold))
                             ],
                           ),
                         ),
