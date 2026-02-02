@@ -129,22 +129,76 @@ class MyApp extends StatelessWidget {
         ],
         locale: const Locale('ar', 'SA'),
         theme: ThemeData(
+          useMaterial3: true,
+          fontFamily: 'Tajawal',
           colorScheme: ColorScheme.fromSeed(
             seedColor: const Color(0xFF006400),
             primary: const Color(0xFF006400),
             secondary: const Color(0xFF004d00),
+            surface: Colors.white,
+            error: const Color(0xFFBA1A1A),
           ),
-          scaffoldBackgroundColor: Colors.grey[50],
-          fontFamily: 'Tajawal',
-          textTheme: const TextTheme(
-            bodyMedium: TextStyle(fontFamily: 'Tajawal'),
-          ).apply(fontFamily: 'Tajawal'),
+          scaffoldBackgroundColor: const Color(0xFFF8F9FA),
+          
           appBarTheme: const AppBarTheme(
             backgroundColor: Color(0xFF006400),
             foregroundColor: Colors.white,
-            elevation: 2,
+            elevation: 0,
+            centerTitle: true,
+            titleTextStyle: TextStyle(fontFamily: 'Tajawal', fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          useMaterial3: true,
+
+          cardTheme: CardTheme(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            color: Colors.white,
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          ),
+
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.grey),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF006400), width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            labelStyle: TextStyle(color: Colors.grey.shade700, fontFamily: 'Tajawal'),
+            hintStyle: TextStyle(color: Colors.grey.shade400, fontFamily: 'Tajawal'),
+            prefixIconColor: Colors.grey.shade600,
+          ),
+
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF006400),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              elevation: 2,
+              textStyle: const TextStyle(fontFamily: 'Tajawal', fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ),
+
+          textTheme: const TextTheme(
+            displayLarge: TextStyle(fontFamily: 'Tajawal', fontSize: 24, fontWeight: FontWeight.bold),
+            titleLarge: TextStyle(fontFamily: 'Tajawal', fontSize: 20, fontWeight: FontWeight.bold),
+            titleMedium: TextStyle(fontFamily: 'Tajawal', fontSize: 16, fontWeight: FontWeight.w600),
+            bodyLarge: TextStyle(fontFamily: 'Tajawal', fontSize: 16),
+            bodyMedium: TextStyle(fontFamily: 'Tajawal', fontSize: 14),
+            labelLarge: TextStyle(fontFamily: 'Tajawal', fontSize: 14, fontWeight: FontWeight.bold),
+          ).apply(fontFamily: 'Tajawal', bodyColor: Colors.black87, displayColor: Colors.black87),
         ),
         // Add a Banner for Dev Mode
         builder: (context, child) {

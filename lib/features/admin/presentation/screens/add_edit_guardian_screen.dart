@@ -344,17 +344,10 @@ class _AddEditGuardianScreenState extends State<AddEditGuardianScreen> {
         controller: c,
         maxLines: maxLines,
         keyboardType: type,
-        style: const TextStyle(fontFamily: 'Tajawal', color: Colors.black, fontWeight: FontWeight.bold),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(fontFamily: 'Tajawal', color: Colors.grey[600], fontWeight: FontWeight.normal),
-          hintStyle: TextStyle(fontFamily: 'Tajawal', color: Colors.grey[400]),
-          prefixIcon: Icon(icon, color: Colors.grey[600], size: 20),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          filled: true,
-          fillColor: Colors.grey[50],
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          floatingLabelBehavior: FloatingLabelBehavior.auto,
+          prefixIcon: Icon(icon),
         ),
         validator: required ? (v) => v == null || v.isEmpty ? 'هذا الحقل مطلوب' : null : null,
       ),
@@ -372,30 +365,17 @@ class _AddEditGuardianScreenState extends State<AddEditGuardianScreen> {
              firstDate: DateTime(1900), 
              lastDate: DateTime(2100),
              locale: const Locale('ar', 'SA'),
-             builder: (context, child) {
-               return Theme(
-                 data: ThemeData.light().copyWith(
-                   colorScheme: ColorScheme.light(primary: Theme.of(context).primaryColor),
-                 ),
-                 child: child!,
-               );
-             }
            );
            if (d != null) onSelect(d);
         },
         child: InputDecorator(
           decoration: InputDecoration(
              labelText: label,
-             labelStyle: TextStyle(fontFamily: 'Tajawal', color: Colors.grey[600], fontWeight: FontWeight.normal),
-             prefixIcon: Icon(Icons.calendar_today, color: Colors.grey[600], size: 20),
-             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-             filled: true,
-             fillColor: Colors.grey[50],
-             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+             prefixIcon: const Icon(Icons.calendar_today),
           ),
           child: Text(
             date != null ? _formatDate(date) : '',
-            style: const TextStyle(fontSize: 14, fontFamily: 'Tajawal', fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
       ),

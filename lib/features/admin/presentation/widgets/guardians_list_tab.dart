@@ -196,22 +196,12 @@ class _GuardiansListTabState extends State<GuardiansListTab> {
             child: Row(
               children: [
                 Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: _onSearchChanged,
-                      decoration: InputDecoration(
-                        hintText: 'بحث فوري (الاسم، الرقم...)',
-                        hintStyle: TextStyle(fontFamily: 'Tajawal', color: Colors.grey[400]),
-                        prefixIcon: const Icon(Icons.search, color: Colors.blueGrey),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      ),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: _onSearchChanged,
+                    decoration: const InputDecoration(
+                      hintText: 'بحث فوري (الاسم، الرقم...)',
+                      prefixIcon: Icon(Icons.search),
                     ),
                   ),
                 ),
@@ -291,14 +281,7 @@ class _GuardiansListTabState extends State<GuardiansListTab> {
   Widget _buildGuardianCard(AdminGuardian guardian) {
     bool isActive = guardian.employmentStatus == 'على رأس العمل';
     
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white, // Cleaner white background
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
-      ),
+    return Card(
       child: Column(
         children: [
           // Top Section: Avatar, Name, Status Chart
