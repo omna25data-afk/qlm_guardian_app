@@ -782,8 +782,13 @@ class _AreaSelectionSheetState extends State<_AreaSelectionSheet> {
     Widget build(BuildContext context) {
        return Padding(
          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-         child: Container(
-            height: 500, // Fixed height instead of percentage to avoid full screen issues
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.85, 
+              minHeight: 400
+            ),
+            child: Container(
+            // height: removed fixed height, let it be flexible within constraints
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [

@@ -41,28 +41,31 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF006400),
         automaticallyImplyLeading: false, 
-        centerTitle: false, // Ensure title stays at start (Right in RTL)
+        toolbarHeight: MediaQuery.of(context).size.height > 600 ? 80 : 60, // Responsive height
+        centerTitle: false,
         title: Padding(
           padding: const EdgeInsets.only(right: 8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 'مرحباً، ${user?.name ?? "الرئيس"}',
                 style: GoogleFonts.tajawal(
-                  textStyle: textTheme.titleLarge?.copyWith( // Increased size
+                  textStyle: textTheme.titleLarge?.copyWith(
                     color: Colors.white, 
                     fontWeight: FontWeight.bold,
+                    fontSize: MediaQuery.of(context).size.width > 400 ? 20 : 16, // Responsive font
                     height: 1.2
                   )
                 ),
               ),
               Text(
-                'رئيس قلم التوثيق', // Role subtitle
+                'رئيس قلم التوثيق',
                 style: GoogleFonts.tajawal(
                   textStyle: textTheme.bodySmall?.copyWith(
                     color: Colors.white70,
-                    fontSize: 12
+                    fontSize: MediaQuery.of(context).size.width > 400 ? 12 : 10
                   )
                 ),
               ),
@@ -71,10 +74,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         ),
         actions: [
            IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.white, size: 28), // Bigger Icon
+            icon: Icon(Icons.notifications, color: Colors.white, size: MediaQuery.of(context).size.width > 400 ? 28 : 24),
             onPressed: () {},
           ),
-          // Avatar & Menu
           Padding(
             padding: const EdgeInsets.only(left: 12.0),
             child: PopupMenuButton<String>(
@@ -89,7 +91,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   backgroundImage: user?.avatarUrl != null 
                       ? NetworkImage(user!.avatarUrl!) 
                       : const AssetImage('assets/images/placeholder_avatar.png') as ImageProvider,
-                  radius: 20, // Bigger Avatar
+                  radius: MediaQuery.of(context).size.width > 400 ? 20 : 16,
                 ),
               ),
               onSelected: (value) {
@@ -151,28 +153,26 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           color: Colors.white,
           boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, -5))],
         ),
-        child: SafeArea( // Protects against system nav bar
-          child: SizedBox(
-            height: 70, 
-            child: BottomNavigationBar(
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(icon: Icon(Icons.dashboard, size: 28), label: 'الرئيسية'),
-                BottomNavigationBarItem(icon: Icon(Icons.group, size: 28), label: 'الأمناء'),
-                BottomNavigationBarItem(icon: Icon(Icons.source, size: 28), label: 'السجلات'),
-                BottomNavigationBarItem(icon: Icon(Icons.analytics, size: 28), label: 'التقارير'),
-                BottomNavigationBarItem(icon: Icon(Icons.build, size: 28), label: 'الأدوات'),
-              ],
-              currentIndex: _selectedIndex,
-              selectedItemColor: const Color(0xFF006400),
-              unselectedItemColor: Colors.grey,
-              showUnselectedLabels: true,
-              type: BottomNavigationBarType.fixed,
-              backgroundColor: Colors.transparent, 
-              elevation: 0, 
-              onTap: _onItemTapped,
-              selectedLabelStyle: GoogleFonts.tajawal(fontWeight: FontWeight.bold, fontSize: 12),
-              unselectedLabelStyle: GoogleFonts.tajawal(fontSize: 10),
-            ),
+        child: SafeArea(
+          child: BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'الرئيسية'),
+              BottomNavigationBarItem(icon: Icon(Icons.group), label: 'الأمناء'),
+              BottomNavigationBarItem(icon: Icon(Icons.source), label: 'السجلات'),
+              BottomNavigationBarItem(icon: Icon(Icons.analytics), label: 'التقارير'),
+              BottomNavigationBarItem(icon: Icon(Icons.build), label: 'الأدوات'),
+            ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: const Color(0xFF006400),
+            unselectedItemColor: Colors.grey,
+            showUnselectedLabels: true,
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.transparent, 
+            elevation: 0,
+            iconSize: MediaQuery.of(context).size.width > 400 ? 28 : 24, // Responsive icons
+            onTap: _onItemTapped,
+            selectedLabelStyle: GoogleFonts.tajawal(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width > 400 ? 12 : 10),
+            unselectedLabelStyle: GoogleFonts.tajawal(fontSize: MediaQuery.of(context).size.width > 400 ? 10 : 9),
           ),
         ),
         ),
