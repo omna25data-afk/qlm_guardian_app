@@ -146,26 +146,36 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         ],
       ),
       body: _pages[_selectedIndex],
-      bottomNavigationBar: SizedBox( // Wrap with SizedBox to control height if needed, or just style items
-        height: 80, // Taller navbar
-        child: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(icon: Icon(Icons.dashboard, size: 30), label: 'الرئيسية'),
-            BottomNavigationBarItem(icon: Icon(Icons.group, size: 30), label: 'الأمناء'),
-            BottomNavigationBarItem(icon: Icon(Icons.source, size: 30), label: 'السجلات'),
-            BottomNavigationBarItem(icon: Icon(Icons.analytics, size: 30), label: 'التقارير'),
-            BottomNavigationBarItem(icon: Icon(Icons.build, size: 30), label: 'الأدوات'),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: const Color(0xFF006400),
-          unselectedItemColor: Colors.grey,
-          showUnselectedLabels: true,
-          type: BottomNavigationBarType.fixed,
-          onTap: _onItemTapped,
-          selectedLabelStyle: GoogleFonts.tajawal(fontWeight: FontWeight.bold, fontSize: 14), // Bigger labels
-          unselectedLabelStyle: GoogleFonts.tajawal(fontSize: 12),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, -5))],
         ),
-      ),
+        child: SafeArea( // Protects against system nav bar
+          child: SizedBox(
+            height: 70, 
+            child: BottomNavigationBar(
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(icon: Icon(Icons.dashboard, size: 28), label: 'الرئيسية'),
+                BottomNavigationBarItem(icon: Icon(Icons.group, size: 28), label: 'الأمناء'),
+                BottomNavigationBarItem(icon: Icon(Icons.source, size: 28), label: 'السجلات'),
+                BottomNavigationBarItem(icon: Icon(Icons.analytics, size: 28), label: 'التقارير'),
+                BottomNavigationBarItem(icon: Icon(Icons.build, size: 28), label: 'الأدوات'),
+              ],
+              currentIndex: _selectedIndex,
+              selectedItemColor: const Color(0xFF006400),
+              unselectedItemColor: Colors.grey,
+              showUnselectedLabels: true,
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: Colors.transparent, 
+              elevation: 0, 
+              onTap: _onItemTapped,
+              selectedLabelStyle: GoogleFonts.tajawal(fontWeight: FontWeight.bold, fontSize: 12),
+              unselectedLabelStyle: GoogleFonts.tajawal(fontSize: 10),
+            ),
+          ),
+        ),
+        ),
     );
   }
 }
