@@ -22,6 +22,8 @@ import 'package:guardian_app/features/admin/data/repositories/admin_areas_reposi
 import 'package:guardian_app/providers/admin_areas_provider.dart';
 import 'package:guardian_app/features/admin/data/repositories/admin_assignments_repository.dart';
 import 'package:guardian_app/providers/admin_assignments_provider.dart';
+import 'package:guardian_app/features/admin/record_books/data/repositories/record_books_repository.dart';
+import 'package:guardian_app/features/admin/record_books/presentation/providers/record_books_provider.dart';
 import 'package:provider/provider.dart';
 
 void mainCommon(AppConfig config) {
@@ -110,9 +112,17 @@ class MyApp extends StatelessWidget {
         Provider<AdminAssignmentsRepository>(
           create: (_) => AdminAssignmentsRepository(baseUrl: config.apiBaseUrl),
         ),
+        Provider<RecordBooksRepository>(
+          create: (_) => RecordBooksRepository(appConfig: config),
+        ),
         ChangeNotifierProvider(
           create: (context) => AdminAssignmentsProvider(
             Provider.of<AdminAssignmentsRepository>(context, listen: false),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => RecordBooksProvider(
+            repository: Provider.of<RecordBooksRepository>(context, listen: false),
           ),
         ),
       ],

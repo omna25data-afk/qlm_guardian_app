@@ -1,5 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../record_books/presentation/screens/record_books_tab.dart' as books;
+import '../../record_books/presentation/widgets/registry_entries_list_widget.dart';
 
 class RecordsTab extends StatelessWidget {
   const RecordsTab({super.key});
@@ -33,22 +36,16 @@ class RecordsTab extends StatelessWidget {
               ],
             ),
           ),
-          Expanded(
+          const Expanded(
             child: TabBarView(
               children: [
-                _buildPlaceholder('إدارة السجلات'),
-                _buildPlaceholder('إدارة القيود'),
+                books.RecordBooksTab(),
+                RegistryEntriesListWidget(fetchOnInit: true),
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildPlaceholder(String title) {
-    return Center(
-      child: Text(title, style: GoogleFonts.tajawal(fontSize: 18, color: Colors.grey)),
     );
   }
 }
