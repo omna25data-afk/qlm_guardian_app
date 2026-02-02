@@ -124,8 +124,8 @@ class GuardianDetailsScreen extends StatelessWidget {
       child: Column(
         children: [
           const TabBar(
-            labelStyle: const TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold),
-            unselectedLabelStyle: const TextStyle(fontFamily: 'Tajawal'),
+            labelStyle: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold),
+            unselectedLabelStyle: TextStyle(fontFamily: 'Tajawal'),
             isScrollable: true,
             labelColor: Colors.blue,
             unselectedLabelColor: Colors.grey,

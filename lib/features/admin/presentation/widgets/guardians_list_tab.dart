@@ -451,7 +451,7 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                             color: Colors.green.withOpacity(0.1),
+                             color: Colors.green.withValues(alpha: 0.1),
                              borderRadius: BorderRadius.circular(8)
                           ),
                           child: const Row(
@@ -491,7 +491,7 @@ class _GuardiansListTabState extends State<GuardiansListTab> with SingleTickerPr
            height: 36,
            decoration: BoxDecoration(
              shape: BoxShape.circle,
-             color: color.withOpacity(0.1),
+             color: color.withValues(alpha: 0.1),
              border: Border.all(color: color, width: 2),
            ),
            child: Icon(
