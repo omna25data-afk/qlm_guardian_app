@@ -45,10 +45,17 @@ if [ ! -f "$APK_PATH" ]; then
     exit 1
 fi
 
-# Create the zip archive. The -j flag junks the path, so it doesn't store the folder structure.
-zip -j "$ZIP_PATH" "$APK_PATH"
+# Create the zip archive.
+if command -v zip &> /dev/null; then
+    zip -j "$ZIP_PATH" "$APK_PATH"
+else
+    echo "⚠️ 'zip' command not found. Using Python fallback..."
+    python3 -c "import zipfile, os; 
+with zipfile.ZipFile('$ZIP_PATH', 'w', zipfile.ZIP_DEFLATED) as z: 
+    z.write('$APK_PATH', os.path.basename('$APK_PATH'))"
+fi
 
-if [ $? -eq 0 ]; then
+if [ -f "$ZIP_PATH" ]; then
     echo "✅ APK successfully compressed to $ZIP_PATH"
 else
     echo "❌ Failed to compress the APK."
