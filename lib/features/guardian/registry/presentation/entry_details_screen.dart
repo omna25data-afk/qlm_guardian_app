@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../../core/constants/api_constants.dart';
-import 'package:guardian_app/features/registry/presentation/add_entry_screen.dart'; // Correct import path
+import 'package:guardian_app/core/constants/api_constants.dart';
+import 'package:guardian_app/features/guardian/registry/presentation/add_entry_screen.dart'; // Correct import path
 
 class EntryDetailsScreen extends StatefulWidget {
   final int entryId;

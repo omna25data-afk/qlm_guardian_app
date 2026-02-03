@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:guardian_app/screens/home_screen.dart'; // To use RegistryEntriesList
+import 'package:guardian_app/features/guardian/home/presentation/guardian_home_screen.dart'; // To use RegistryEntriesList
 
 class RegistryEntriesScreen extends StatelessWidget {
   final int? bookNumber;

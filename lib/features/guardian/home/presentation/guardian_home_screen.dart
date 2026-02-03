@@ -1,33 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:guardian_app/features/records/presentation/screens/record_book_notebooks_screen.dart';
+import 'package:guardian_app/features/guardian/records/presentation/screens/record_book_notebooks_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:guardian_app/widgets/stat_card.dart';
 import 'package:provider/provider.dart';
 
 import 'package:guardian_app/providers/dashboard_provider.dart';
-import 'package:guardian_app/features/dashboard/data/models/dashboard_data.dart';
+import 'package:guardian_app/features/guardian/dashboard/data/models/dashboard_data.dart';
 import 'package:guardian_app/providers/record_book_provider.dart';
 import 'package:guardian_app/providers/registry_entry_provider.dart';
-import 'package:guardian_app/features/registry/presentation/add_entry_screen.dart';
+import 'package:guardian_app/features/guardian/registry/presentation/add_entry_screen.dart';
 import 'package:guardian_app/core/constants/system_constants.dart';
-import 'package:guardian_app/features/registry/presentation/entry_details_screen.dart'; // Add Import
-import 'package:guardian_app/features/profile/presentation/profile_screen.dart';
+import 'package:guardian_app/features/guardian/registry/presentation/entry_details_screen.dart'; // Add Import
+import 'package:guardian_app/features/guardian/profile/presentation/guardian_profile_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:guardian_app/core/constants/api_constants.dart';
 import 'package:guardian_app/features/auth/data/repositories/auth_repository.dart';
-import 'package:guardian_app/features/registry/data/models/registry_entry.dart';
-import 'package:guardian_app/features/records/data/models/record_book.dart';
+import 'package:guardian_app/features/guardian/registry/data/models/registry_entry.dart';
+import 'package:guardian_app/features/guardian/records/data/models/record_book.dart';
 
 // --- Main HomeScreen (Shell) ---
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class GuardianHomeScreen extends StatefulWidget {
+  const GuardianHomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<GuardianHomeScreen> createState() => _GuardianHomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
+class _GuardianHomeScreenState extends State<GuardianHomeScreen>
     with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
   late TabController _tabController;
@@ -71,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen>
       ),
       const AddEntryScreen(), // Use new AddEntryScreen
       const ToolsTab(),
-      const ProfileScreen(), // Use ProfileScreen instead of MoreTab
+      const GuardianProfileScreen(), // Use GuardianProfileScreen instead of ProfileScreen
     ];
 
     return Scaffold(

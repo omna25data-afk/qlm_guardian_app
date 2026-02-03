@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
-import 'package:guardian_app/features/records/data/models/record_book.dart';
-import 'package:guardian_app/features/records/data/repositories/records_repository.dart';
+import 'package:flutter/material.dart';
+import 'package:guardian_app/features/guardian/records/data/models/record_book.dart';
+import 'package:guardian_app/features/guardian/records/data/repositories/records_repository.dart';
 
 /// A provider for managing the list of record books.
 class RecordBookProvider with ChangeNotifier {

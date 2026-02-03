@@ -9,7 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:guardian_app/core/constants/api_constants.dart';
 import 'package:guardian_app/features/auth/data/repositories/auth_repository.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:guardian_app/features/records/data/models/record_book.dart'; // Import RecordBook model
+import 'package:guardian_app/features/guardian/records/data/models/record_book.dart'; // Import RecordBook model
 
 class AddEntryScreen extends StatefulWidget {
   final int? editEntryId;

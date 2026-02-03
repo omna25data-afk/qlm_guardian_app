@@ -6,9 +6,9 @@ import 'dart:convert';
 import 'package:guardian_app/core/constants/api_constants.dart';
 
 import 'package:guardian_app/features/auth/data/repositories/auth_repository.dart';
-import 'package:guardian_app/features/records/data/models/record_book.dart'; // Updated import
-import 'package:guardian_app/features/records/data/models/record_book_template.dart';
-import 'package:guardian_app/features/registry/presentation/registry_entries_screen.dart';
+import 'package:guardian_app/features/guardian/records/data/models/record_book.dart'; // Updated import
+import 'package:guardian_app/features/guardian/records/data/models/record_book_template.dart';
+import 'package:guardian_app/features/guardian/registry/presentation/registry_entries_screen.dart';
 
 class RecordBookNotebooksScreen extends StatefulWidget {
   final int contractTypeId;

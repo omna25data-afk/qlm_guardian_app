@@ -8,9 +8,9 @@ import 'package:guardian_app/providers/dashboard_provider.dart';
 import 'package:guardian_app/providers/record_book_provider.dart';
 import 'package:guardian_app/providers/registry_entry_provider.dart';
 import 'package:guardian_app/features/auth/data/repositories/auth_repository.dart';
-import 'package:guardian_app/features/dashboard/data/repositories/dashboard_repository.dart';
-import 'package:guardian_app/features/records/data/repositories/records_repository.dart';
-import 'package:guardian_app/features/registry/data/repositories/registry_repository.dart';
+import 'package:guardian_app/features/guardian/dashboard/data/repositories/dashboard_repository.dart';
+import 'package:guardian_app/features/guardian/records/data/repositories/records_repository.dart';
+import 'package:guardian_app/features/guardian/registry/data/repositories/registry_repository.dart';
 import 'package:guardian_app/screens/login_screen.dart';
 import 'package:guardian_app/features/admin/data/repositories/admin_dashboard_repository.dart';
 import 'package:guardian_app/providers/admin_dashboard_provider.dart';
@@ -25,6 +25,8 @@ import 'package:guardian_app/providers/admin_assignments_provider.dart';
 import 'package:guardian_app/features/admin/record_books/data/repositories/record_books_repository.dart';
 import 'package:guardian_app/features/admin/record_books/presentation/providers/record_books_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:guardian_app/features/guardian/profile/presentation/guardian_profile_screen.dart';
+import 'package:guardian_app/features/admin/profile/presentation/admin_profile_screen.dart';
 
 void mainCommon(AppConfig config) {
   // Initialize API Constants with the environment-specific URL
@@ -230,6 +232,8 @@ class MyApp extends StatelessWidget {
         home: const LoginScreen(),
         routes: {
           '/login': (context) => const LoginScreen(),
+          '/profile/guardian': (context) => const GuardianProfileScreen(),
+          '/profile/admin': (context) => const AdminProfileScreen(),
         },
       ),
     );

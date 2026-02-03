@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
-import 'package:guardian_app/features/dashboard/data/models/dashboard_data.dart';
-import 'package:guardian_app/features/dashboard/data/repositories/dashboard_repository.dart';
+import 'package:flutter/material.dart';
+import 'package:guardian_app/features/guardian/dashboard/data/models/dashboard_data.dart';
+import 'package:guardian_app/features/guardian/dashboard/data/repositories/dashboard_repository.dart';
 
 /// A provider for the dashboard screen.
 ///

@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:guardian_app/providers/auth_provider.dart';
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+class GuardianProfileScreen extends StatelessWidget {
+  const GuardianProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,6 +13,18 @@ class ProfileScreen extends StatelessWidget {
         final user = authProvider.currentUser;
         
         return Scaffold(
+          appBar: AppBar(
+            backgroundColor: const Color(0xFF006400),
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            title: Text(
+              'الملف الشخصي',
+              style: GoogleFonts.tajawal(color: Colors.white),
+            ),
+          ),
           body: SingleChildScrollView(
             child: Column(
               children: [
@@ -104,7 +116,7 @@ class ProfileScreen extends StatelessWidget {
                           onPressed: () async {
                             await authProvider.logout();
                             if (context.mounted) {
-                              Navigator.of(context).pushReplacementNamed('/login');
+                              Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
                             }
                           },
                           icon: const Icon(Icons.logout, color: Colors.red),

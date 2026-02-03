@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:guardian_app/core/constants/api_constants.dart';
 import 'package:guardian_app/providers/auth_provider.dart';
 import 'package:guardian_app/features/auth/data/models/user_model.dart';
-import 'package:guardian_app/screens/home_screen.dart';
+import 'package:guardian_app/features/guardian/home/presentation/guardian_home_screen.dart';
 import 'package:guardian_app/screens/debug_screen.dart';
 import 'package:guardian_app/features/admin/presentation/screens/admin_home_screen.dart';
 
@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
              } else {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  MaterialPageRoute(builder: (context) => const GuardianHomeScreen()),
                 );
              }
         } else {

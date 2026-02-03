@@ -98,6 +98,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 if (value == 'logout') {
                   Provider.of<AuthProvider>(context, listen: false).logout();
                   Navigator.of(context).pushReplacementNamed('/login');
+                } else if (value == 'profile') {
+                  Navigator.of(context).pushNamed('/profile/admin');
                 }
               },
               itemBuilder: (context) => [
