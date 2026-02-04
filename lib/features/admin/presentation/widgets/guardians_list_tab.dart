@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:guardian_app/features/admin/data/models/admin_guardian_model.dart';
 import 'package:guardian_app/providers/admin_guardians_provider.dart';
 import 'package:guardian_app/features/admin/presentation/screens/add_edit_guardian_screen.dart';
 import 'package:guardian_app/features/admin/presentation/screens/guardian_details_screen.dart';
+import 'package:guardian_app/widgets/custom_dropdown_menu.dart';
 
 class GuardiansListTab extends StatefulWidget {
   const GuardiansListTab({super.key});
@@ -82,79 +84,198 @@ class _GuardiansListTabState extends State<GuardiansListTab> {
   }
 
   void _showSortSheet() {
-    showModalBottomSheet(
+    CustomBottomSheet.show(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => Column(
-        mainAxisSize: MainAxisSize.min,
+      title: 'فرز القائمة',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-           const Padding(
-             padding: EdgeInsets.all(16.0),
-             child: Text('فرز القائمة', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold, fontSize: 18)),
-           ),
-           _buildSortOption(ctx, 'الأحدث إضافة', 'date_desc', Icons.calendar_today),
-           _buildSortOption(ctx, 'الأقدم إضافة', 'date_asc', Icons.history),
-           _buildSortOption(ctx, 'الاسم (أ-ي)', 'name_asc', Icons.sort_by_alpha),
+          Text(
+            'اختر طريقة الفرز',
+            style: GoogleFonts.tajawal(color: Colors.grey[600], fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          _buildSortOptionCard('الأحدث إضافة', 'date_desc', Icons.calendar_today),
+          _buildSortOptionCard('الأقدم إضافة', 'date_asc', Icons.history),
+          _buildSortOptionCard('الاسم (أ-ي)', 'name_asc', Icons.sort_by_alpha),
+          _buildSortOptionCard('الاسم (ي-أ)', 'name_desc', Icons.sort_by_alpha),
         ],
       ),
     );
   }
 
-  Widget _buildSortOption(BuildContext ctx, String label, String value, IconData icon) {
-    bool isSelected = _sortOption == value;
-    return ListTile(
-      title: Text(label, style: TextStyle(fontFamily: 'Tajawal', fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, color: isSelected ? Theme.of(context).primaryColor : Colors.black87)),
-      leading: Icon(icon, color: isSelected ? Theme.of(context).primaryColor : Colors.grey),
-      trailing: isSelected ? Icon(Icons.check, color: Theme.of(context).primaryColor) : null,
+  Widget _buildSortOptionCard(String label, String value, IconData icon) {
+    final isSelected = _sortOption == value;
+    final primaryColor = const Color(0xFF006400);
+    
+    return GestureDetector(
       onTap: () {
         setState(() => _sortOption = value);
-        // Here you would typically call _fetchData() with the new sort option
-        Navigator.pop(ctx);
+        Navigator.pop(context);
+        _fetchData(refresh: true);
       },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: isSelected ? primaryColor.withValues(alpha: 0.08) : Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? primaryColor : Colors.grey.shade200,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: isSelected ? primaryColor.withValues(alpha: 0.15) : Colors.grey.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: isSelected ? primaryColor : Colors.grey[600], size: 20),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                label,
+                style: GoogleFonts.tajawal(
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? primaryColor : Colors.black87,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+            if (isSelected)
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: primaryColor,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.check, color: Colors.white, size: 16),
+              ),
+          ],
+        ),
+      ),
     );
-
   }
 
   void _showFilterSheet() {
+    String tempStatus = _selectedStatus;
+    
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => StatefulBuilder( // Use StatefulBuilder to update sheet state
-        builder: (ctx, setSheetState) => Padding(
-          padding: const EdgeInsets.all(20.0),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-               const Text('تصفية النتائج', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold, fontSize: 18)),
-               const SizedBox(height: 20),
-               const Text('حالة العمل', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold)),
-               const SizedBox(height: 10),
-               Wrap(
-                 spacing: 10,
-                 children: [
-                   _buildFilterChip('الكل', 'all', setSheetState),
-                   _buildFilterChip('على رأس العمل', 'active', setSheetState),
-                   _buildFilterChip('متوقف', 'stopped', setSheetState),
-                 ],
-               ),
-               const SizedBox(height: 20),
-               SizedBox(
-                 width: double.infinity,
-                 child: ElevatedButton(
-                   onPressed: () {
-                     Navigator.pop(context);
-                     _fetchData(refresh: true);
-                   },
-                   style: ElevatedButton.styleFrom(
-                     backgroundColor: Theme.of(context).primaryColor,
-                     foregroundColor: Colors.white,
-                     padding: const EdgeInsets.symmetric(vertical: 12),
-                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                   ),
-                   child: const Text('تطبيق', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold)),
-                 ),
-               )
+              // Handle
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              // Header
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF006400).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.filter_list, color: Color(0xFF006400), size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'تصفية النتائج',
+                      style: GoogleFonts.tajawal(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(Icons.close, color: Colors.grey[400]),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'حالة العمل',
+                      style: GoogleFonts.tajawal(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildFilterOptionRow('الكل', 'all', tempStatus, (val) {
+                      setSheetState(() => tempStatus = val);
+                    }),
+                    _buildFilterOptionRow('على رأس العمل', 'active', tempStatus, (val) {
+                      setSheetState(() => tempStatus = val);
+                    }),
+                    _buildFilterOptionRow('متوقف عن العمل', 'stopped', tempStatus, (val) {
+                      setSheetState(() => tempStatus = val);
+                    }),
+                  ],
+                ),
+              ),
+              // Apply Button
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() => _selectedStatus = tempStatus);
+                      Navigator.pop(context);
+                      _fetchData(refresh: true);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF006400),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: Text(
+                      'تطبيق التصفية',
+                      style: GoogleFonts.tajawal(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -162,19 +283,52 @@ class _GuardiansListTabState extends State<GuardiansListTab> {
     );
   }
 
-  Widget _buildFilterChip(String label, String value, StateSetter setSheetState) {
-    bool isSelected = _selectedStatus == value;
-    return ChoiceChip(
-      label: Text(label, style: TextStyle(fontFamily: 'Tajawal', color: isSelected ? Colors.white : Colors.black)),
-      selected: isSelected,
-      selectedColor: Theme.of(context).primaryColor,
-      backgroundColor: Colors.grey[200],
-      onSelected: (bool selected) {
-        if (selected) {
-           setSheetState(() => _selectedStatus = value);
-           setState(() => _selectedStatus = value); // Sync with parent
-        }
-      },
+  Widget _buildFilterOptionRow(String label, String value, String currentValue, Function(String) onSelect) {
+    final isSelected = currentValue == value;
+    final primaryColor = const Color(0xFF006400);
+    
+    return GestureDetector(
+      onTap: () => onSelect(value),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isSelected ? primaryColor.withValues(alpha: 0.08) : Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? primaryColor : Colors.grey.shade200,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected ? primaryColor : Colors.transparent,
+                border: Border.all(
+                  color: isSelected ? primaryColor : Colors.grey.shade400,
+                  width: 2,
+                ),
+              ),
+              child: isSelected
+                  ? const Icon(Icons.check, color: Colors.white, size: 14)
+                  : null,
+            ),
+            const SizedBox(width: 14),
+            Text(
+              label,
+              style: GoogleFonts.tajawal(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                color: isSelected ? primaryColor : Colors.black87,
+                fontSize: 15,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
