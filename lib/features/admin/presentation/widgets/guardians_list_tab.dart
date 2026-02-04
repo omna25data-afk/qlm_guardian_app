@@ -106,7 +106,7 @@ class _GuardiansListTabState extends State<GuardiansListTab> {
 
   Widget _buildSortOptionCard(String label, String value, IconData icon) {
     final isSelected = _sortOption == value;
-    final primaryColor = const Color(0xFF006400);
+    const primaryColor = Color(0xFF006400);
     
     return GestureDetector(
       onTap: () {
@@ -285,7 +285,7 @@ class _GuardiansListTabState extends State<GuardiansListTab> {
 
   Widget _buildFilterOptionRow(String label, String value, String currentValue, Function(String) onSelect) {
     final isSelected = currentValue == value;
-    final primaryColor = const Color(0xFF006400);
+    const primaryColor = Color(0xFF006400);
     
     return GestureDetector(
       onTap: () => onSelect(value),
