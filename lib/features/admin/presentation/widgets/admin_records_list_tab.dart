@@ -28,12 +28,14 @@ class _AdminRecordsListTabState extends State<AdminRecordsListTab> {
   // Data
   List<Map<String, dynamic>> _records = [];
   List<Map<String, dynamic>> _contractTypes = [];
+  List<Map<String, dynamic>> _recordBookTypes = [];
   List<Map<String, dynamic>> _guardians = [];
   
   // Filters
   String _searchQuery = '';
   int? _yearFilter;
   int? _contractTypeFilter;
+  int? _recordBookTypeFilter;
   int? _guardianFilter;
   String _sortBy = 'document_date';
   bool _sortAsc = false;
@@ -94,6 +96,9 @@ class _AdminRecordsListTabState extends State<AdminRecordsListTab> {
       if (_contractTypeFilter != null) {
         params['contract_type_id'] = '$_contractTypeFilter';
       }
+      if (_recordBookTypeFilter != null) {
+        params['record_book_type_id'] = '$_recordBookTypeFilter';
+      }
       if (_guardianFilter != null) {
         params['guardian_id'] = '$_guardianFilter';
       }
@@ -101,7 +106,7 @@ class _AdminRecordsListTabState extends State<AdminRecordsListTab> {
         params['search'] = _searchQuery;
       }
 
-      final uri = Uri.parse('${ApiConstants.baseUrl}/admin/registry-entries').replace(queryParameters: params);
+      final uri = Uri.parse('${ApiConstants.baseUrl}/admin/record-books').replace(queryParameters: params);
 
       final response = await http.get(
         uri,
@@ -139,6 +144,22 @@ class _AdminRecordsListTabState extends State<AdminRecordsListTab> {
           final data = jsonDecode(utf8.decode(guardiansResponse.bodyBytes));
           final list = data['data'] as List? ?? data as List? ?? [];
           _guardians = list.cast<Map<String, dynamic>>();
+        }
+      }
+
+      // Load record book types (once)
+      if (_recordBookTypes.isEmpty) {
+        final typesResponse = await http.get(
+          Uri.parse('${ApiConstants.baseUrl}/record-book-types'),
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+        if (typesResponse.statusCode == 200) {
+          final data = jsonDecode(utf8.decode(typesResponse.bodyBytes));
+          final list = data['data'] as List? ?? data as List? ?? [];
+          _recordBookTypes = list.cast<Map<String, dynamic>>();
         }
       }
 
@@ -239,8 +260,9 @@ class _AdminRecordsListTabState extends State<AdminRecordsListTab> {
 
   Widget _buildHeader() {
     final totalCount = _records.length;
-    final totalFees = _records.fold<double>(
-      0, (sum, r) => sum + ((r['fee_amount'] ?? r['fees']?['total'] ?? 0) as num).toDouble()
+    // For Record Books, maybe sum total pages or entries count?
+    final totalEntries = _records.fold<int>(
+      0, (sum, r) => sum + ((r['guardian_entries_count'] ?? 0) as int)
     );
     
     return Container(
@@ -266,8 +288,8 @@ class _AdminRecordsListTabState extends State<AdminRecordsListTab> {
           Expanded(
             child: _buildStatCard(
               icon: Icons.attach_money,
-              title: 'إجمالي الرسوم',
-              value: '${totalFees.toStringAsFixed(0)} ر.ي',
+              title: 'إجمالي القيود في السجلات',
+              value: '$totalEntries',
               color: Colors.amber[700]!,
             ),
           ),
@@ -325,33 +347,57 @@ class _AdminRecordsListTabState extends State<AdminRecordsListTab> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         children: [
-          // Search
-          TextField(
-            controller: _searchController,
-            onChanged: (v) {
-              _searchQuery = v;
-              _loadData();
-            },
-            decoration: InputDecoration(
-              hintText: 'بحث بالاسم أو الرقم...',
-              hintStyle: GoogleFonts.tajawal(color: Colors.grey),
-              prefixIcon: const Icon(Icons.search, color: Colors.grey),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (v) {
+                    _searchQuery = v;
+                    _loadData();
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'بحث برقم الدفتر أو اسم الأمين...',
+                    hintStyle: GoogleFonts.tajawal(color: Colors.grey),
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: primaryColor),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[50],
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+              const SizedBox(width: 12),
+              // Issue Book Button
+              ElevatedButton.icon(
+                onPressed: () {
+                   // Open Issue Sheet
+                   // showModalBottomSheet(context: context, builder: (_) => const IssueRecordBookSheet());
+                   // For now placeholder
+                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('سيتم إضافة شاشة صرف السجل قريباً')));
+                },
+                icon: const Icon(Icons.add_box, size: 20),
+                label: Text('صرف سجل', style: GoogleFonts.tajawal(fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
+                ),
               ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: primaryColor),
-              ),
-              filled: true,
-              fillColor: Colors.grey[50],
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
+            ],
           ),
           const SizedBox(height: 12),
           
@@ -552,17 +598,25 @@ class _AdminRecordsListTabState extends State<AdminRecordsListTab> {
   }
 
   Widget _buildRecordCard(Map<String, dynamic> record, {bool inGroup = false}) {
-    final serialNumber = record['serial_number'] ?? 0;
-    final firstParty = record['first_party_name'] ?? '';
-    final secondParty = record['second_party_name'] ?? '';
-    final contractType = record['contract_type']?['name'] ?? record['contract_type_name'] ?? '';
-    final guardianName = record['guardian']?['name'] ?? record['writer_name'] ?? '';
-    final bookNumber = record['guardian_record_book_number'] ?? '-';
+    final bookNumber = record['book_number'] ?? 0;
+    final name = record['name'] ?? 'سجل';
+    final typeName = record['record_book_type']?['name'] ?? 'غير محدد';
+    final guardianName = record['legitimate_guardian']?['first_name'] != null 
+        ? "${record['legitimate_guardian']['first_name']} ${record['legitimate_guardian']['family_name'] ?? ''}"
+        : (record['legitimate_guardian']?['full_name'] ?? 'غير معروف');
+        
     final hijriYear = record['hijri_year'] ?? '';
-    final status = record['status_label'] ?? record['status'] ?? '';
-    final statusColor = _getStatusColor(record['status_color'] ?? record['status'] ?? '');
-    final fee = ((record['fee_amount'] ?? record['fees']?['total'] ?? 0) as num).toDouble();
-    final hijriDate = record['document_date']?['hijri'] ?? record['hijri_date'] ?? '';
+    final status = record['status'] ?? 'active';
+    final totalPages = record['total_pages'] ?? 0;
+    final entriesCount = record['guardian_entries_count'] ?? 0;
+    final constraintsCount = record['constraints_count'] ?? 0; // if available from my previous backend change
+    
+    // Status Logic
+    Color statusColor = Colors.grey;
+    String statusLabel = status;
+    if (status == 'active') { statusColor = Colors.green; statusLabel = 'نشط'; }
+    else if (status == 'filled') { statusColor = Colors.orange; statusLabel = 'ممتلئ'; }
+    else if (status == 'archived') { statusColor = Colors.grey; statusLabel = 'مؤرشف'; }
 
     return Container(
       margin: EdgeInsets.only(bottom: inGroup ? 0 : 12, left: inGroup ? 16 : 0, right: inGroup ? 16 : 0),
@@ -591,7 +645,7 @@ class _AdminRecordsListTabState extends State<AdminRecordsListTab> {
                   color: primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text('#$serialNumber', style: GoogleFonts.tajawal(fontWeight: FontWeight.bold, color: primaryColor)),
+                child: Text('#$bookNumber', style: GoogleFonts.tajawal(fontWeight: FontWeight.bold, color: primaryColor)),
               ),
               const SizedBox(width: 8),
               Container(
@@ -600,7 +654,7 @@ class _AdminRecordsListTabState extends State<AdminRecordsListTab> {
                   color: statusColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Text(status, style: GoogleFonts.tajawal(fontSize: 11, color: statusColor, fontWeight: FontWeight.w500)),
+                child: Text(statusLabel, style: GoogleFonts.tajawal(fontSize: 11, color: statusColor, fontWeight: FontWeight.w500)),
               ),
               const Spacer(),
               Text('$hijriYear هـ', style: GoogleFonts.tajawal(fontSize: 12, color: Colors.grey)),
@@ -608,30 +662,11 @@ class _AdminRecordsListTabState extends State<AdminRecordsListTab> {
           ),
           const SizedBox(height: 12),
           
-          // Parties
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('الطرف الأول', style: GoogleFonts.tajawal(fontSize: 10, color: Colors.grey)),
-                    Text(firstParty, style: GoogleFonts.tajawal(fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('الطرف الثاني', style: GoogleFonts.tajawal(fontSize: 10, color: Colors.grey)),
-                    Text(secondParty, style: GoogleFonts.tajawal(fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          // Main Info
+          Text(name, style: GoogleFonts.tajawal(fontSize: 14, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Text(guardianName, style: GoogleFonts.tajawal(fontSize: 12, color: Colors.grey[700])),
+          
           const SizedBox(height: 12),
           
           // Details
@@ -639,11 +674,9 @@ class _AdminRecordsListTabState extends State<AdminRecordsListTab> {
             spacing: 12,
             runSpacing: 8,
             children: [
-              _buildInfoChip(Icons.description, contractType),
-              _buildInfoChip(Icons.person_outline, guardianName),
-              _buildInfoChip(Icons.menu_book, 'دفتر $bookNumber'),
-              _buildInfoChip(Icons.calendar_today, hijriDate),
-              _buildInfoChip(Icons.attach_money, '${fee.toStringAsFixed(0)} ر.ي'),
+              _buildInfoChip(Icons.category_outlined, typeName),
+              _buildInfoChip(Icons.format_list_numbered, '$entriesCount قيد'),
+              _buildInfoChip(Icons.description_outlined, '${totalPages} صفحة'),
             ],
           ),
         ],
@@ -736,6 +769,20 @@ class _AdminRecordsListTabState extends State<AdminRecordsListTab> {
                 _loadData();
               }),
               (v) => v == null ? 'جميع الأنواع' : _contractTypes.firstWhere((t) => t['id'] == v, orElse: () => {'name': ''})['name'] as String,
+            ),
+            const SizedBox(height: 16),
+            
+            // Record Book Type Filter
+            _buildDropdownFilter(
+              'نوع السجل',
+              _recordBookTypeFilter,
+              [null, ..._recordBookTypes.map((t) => t['id'] as int)],
+              (v) => setState(() {
+                _recordBookTypeFilter = v;
+                Navigator.pop(context);
+                _loadData();
+              }),
+              (v) => v == null ? 'جميع أنواع السجلات' : _recordBookTypes.firstWhere((t) => t['id'] == v, orElse: () => {'name': ''})['name'] as String,
             ),
             const SizedBox(height: 16),
             

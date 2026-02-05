@@ -7,6 +7,7 @@ import 'package:guardian_app/core/constants/api_constants.dart';
 import 'package:guardian_app/features/auth/data/repositories/auth_repository.dart';
 import 'package:guardian_app/features/registry/data/models/registry_entry.dart';
 import 'package:guardian_app/features/registry/presentation/entry_details_screen.dart';
+import 'package:guardian_app/features/registry/presentation/add_entry_screen.dart';
 
 class AdminEntriesListTab extends StatefulWidget {
   const AdminEntriesListTab({super.key});
@@ -549,38 +550,64 @@ class _AdminEntriesListTabState extends State<AdminEntriesListTab> {
           ),
           child: Column(
             children: [
-              // Search
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  onSubmitted: (v) {
-                    _searchQuery = v;
-                    _loadData();
-                  },
-                  style: GoogleFonts.tajawal(fontSize: 14),
-                  decoration: InputDecoration(
-                    hintText: 'بحث في القيود (الأطراف، نوع العقد، الرقم)...',
-                    hintStyle: GoogleFonts.tajawal(color: Colors.grey[400], fontSize: 13),
-                    prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: Icon(Icons.close, color: Colors.grey[400], size: 20),
-                            onPressed: () {
-                              _searchController.clear();
-                              _searchQuery = '';
-                              _loadData();
-                            },
-                          )
-                        : null,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: TextField(
+                        controller: _searchController,
+                        onSubmitted: (v) {
+                          _searchQuery = v;
+                          _loadData();
+                        },
+                        style: GoogleFonts.tajawal(fontSize: 14),
+                        decoration: InputDecoration(
+                          hintText: 'بحث في القيود (الأطراف، نوع العقد، الرقم)...',
+                          hintStyle: GoogleFonts.tajawal(color: Colors.grey[400], fontSize: 13),
+                          prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
+                          suffixIcon: _searchQuery.isNotEmpty
+                              ? IconButton(
+                                  icon: Icon(Icons.close, color: Colors.grey[400], size: 20),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    _searchQuery = '';
+                                    _loadData();
+                                  },
+                                )
+                              : null,
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 12),
+                  // Add Entry Button
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AddEntryScreen()),
+                      ).then((value) {
+                        if (value == true) _loadData();
+                      });
+                    },
+                    icon: const Icon(Icons.add_circle_outline, size: 20),
+                    label: Text('قيد جديد', style: GoogleFonts.tajawal(fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               // Action buttons
