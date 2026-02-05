@@ -331,77 +331,157 @@ class _GuardiansListTabState extends State<GuardiansListTab> {
       ),
     );
   }
-
   @override
   Widget build(BuildContext context) {
+    const primaryColor = Color(0xFF006400);
+    
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _navigateToEdit(null),
-        backgroundColor: Theme.of(context).primaryColor,
-        elevation: 4,
-        child: const Icon(Icons.add, color: Colors.white),
+      backgroundColor: Colors.grey[50],
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [primaryColor, Color(0xFF008000)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: primaryColor.withValues(alpha: 0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: FloatingActionButton.extended(
+          onPressed: () => _navigateToEdit(null),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          icon: const Icon(Icons.person_add, color: Colors.white),
+          label: Text('إضافة أمين', style: GoogleFonts.tajawal(color: Colors.white, fontWeight: FontWeight.bold)),
+        ),
       ),
       body: Column(
         children: [
           // Top Search & Toolbar
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Row(
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
               children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: _onSearchChanged,
-                      decoration: InputDecoration(
-                        hintText: 'بحث فوري (الاسم، الرقم...)',
-                        hintStyle: TextStyle(fontFamily: 'Tajawal', color: Colors.grey[400]),
-                        prefixIcon: const Icon(Icons.search, color: Colors.blueGrey),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                // Search Bar
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: _onSearchChanged,
+                    style: GoogleFonts.tajawal(fontSize: 14),
+                    decoration: InputDecoration(
+                      hintText: 'بحث بالاسم أو الرقم...',
+                      hintStyle: GoogleFonts.tajawal(color: Colors.grey[400], fontSize: 14),
+                      prefixIcon: Container(
+                        padding: const EdgeInsets.all(12),
+                        child: Icon(Icons.search, color: Colors.grey[500], size: 22),
                       ),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(Icons.close, color: Colors.grey[400], size: 20),
+                              onPressed: () {
+                                _searchController.clear();
+                                _onSearchChanged('');
+                              },
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                _buildIconButton(Icons.filter_list, _selectedStatus != 'all' ? Colors.orange : Colors.grey, _showFilterSheet), // Advanced Filter
-                const SizedBox(width: 8),
-                _buildIconButton(Icons.sort, Colors.blue, _showSortSheet), // Sort
+                const SizedBox(height: 12),
+                // Filter & Sort Row
+                Row(
+                  children: [
+                    // Filter Button
+                    Expanded(
+                      child: _buildActionChip(
+                        icon: Icons.filter_list,
+                        label: 'تصفية',
+                        isActive: _selectedStatus != 'all',
+                        activeColor: Colors.orange,
+                        onTap: _showFilterSheet,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    // Sort Button
+                    Expanded(
+                      child: _buildActionChip(
+                        icon: Icons.sort,
+                        label: 'فرز',
+                        isActive: _sortOption != 'date_desc',
+                        activeColor: Colors.blue,
+                        onTap: _showSortSheet,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
-
-          // Removed TabBar Container
 
           // List Content
           Expanded(
             child: Consumer<AdminGuardiansProvider>(
               builder: (context, provider, child) {
                 if (provider.isLoading && provider.guardians.isEmpty) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const CircularProgressIndicator(color: primaryColor),
+                        const SizedBox(height: 16),
+                        Text('جاري التحميل...', style: GoogleFonts.tajawal(color: Colors.grey[600])),
+                      ],
+                    ),
+                  );
                 }
 
                 if (provider.guardians.isEmpty) {
                   return _buildEmptyState();
                 }
 
-                return ListView.separated(
-                  controller: _scrollController, // Added Controller
-                  padding: const EdgeInsets.all(16),
-                  itemCount: provider.guardians.length + (provider.hasMore ? 1 : 0),
-                  separatorBuilder: (c, i) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    if (index == provider.guardians.length) {
-                      return const Center(child: Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator()));
-                    }
-                    return _buildGuardianCard(provider.guardians[index]);
-                  },
+                return RefreshIndicator(
+                  color: primaryColor,
+                  onRefresh: () => _fetchData(refresh: true),
+                  child: ListView.separated(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16),
+                    itemCount: provider.guardians.length + (provider.hasMore ? 1 : 0),
+                    separatorBuilder: (c, i) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      if (index == provider.guardians.length) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: CircularProgressIndicator(color: primaryColor, strokeWidth: 2),
+                          ),
+                        );
+                      }
+                      return _buildGuardianCard(provider.guardians[index]);
+                    },
+                  ),
                 );
               },
             ),
@@ -411,203 +491,400 @@ class _GuardiansListTabState extends State<GuardiansListTab> {
     );
   }
 
-  Widget _buildIconButton(IconData icon, Color color, VoidCallback onTap) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 5)],
-      ),
-      child: IconButton(
-        icon: Icon(icon, color: color),
-        onPressed: onTap,
-        constraints: const BoxConstraints(minWidth: 45, minHeight: 45),
+  Widget _buildActionChip({
+    required IconData icon,
+    required String label,
+    required bool isActive,
+    required Color activeColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isActive ? activeColor.withValues(alpha: 0.1) : Colors.grey[100],
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isActive ? activeColor.withValues(alpha: 0.3) : Colors.grey.shade200,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 18, color: isActive ? activeColor : Colors.grey[600]),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: GoogleFonts.tajawal(
+                fontSize: 13,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                color: isActive ? activeColor : Colors.grey[700],
+              ),
+            ),
+            if (isActive) ...[
+              const SizedBox(width: 4),
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: activeColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildEmptyState() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.person_off, size: 80, color: Colors.grey[300]),
-          const SizedBox(height: 16),
-          Text(
-            'لا يوجد أمناء مطابقين للبحث',
-            style: TextStyle(fontFamily: 'Tajawal', color: Colors.grey[600], fontSize: 16),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.person_search, size: 64, color: Colors.grey[400]),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'لا يوجد أمناء',
+              style: GoogleFonts.tajawal(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[700],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'لم يتم العثور على نتائج مطابقة للبحث',
+              style: GoogleFonts.tajawal(
+                fontSize: 14,
+                color: Colors.grey[500],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            OutlinedButton.icon(
+              onPressed: () {
+                _searchController.clear();
+                setState(() {
+                  _selectedStatus = 'all';
+                  _sortOption = 'date_desc';
+                });
+                _fetchData(refresh: true);
+              },
+              icon: const Icon(Icons.refresh),
+              label: Text('إعادة تعيين', style: GoogleFonts.tajawal(fontWeight: FontWeight.bold)),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF006400),
+                side: const BorderSide(color: Color(0xFF006400)),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-
   Widget _buildGuardianCard(AdminGuardian guardian) {
+    const primaryColor = Color(0xFF006400);
     bool isActive = guardian.employmentStatus == 'على رأس العمل';
     
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white, // Cleaner white background
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Top Section: Avatar, Name, Status Chart
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      width: 50, // Chart size
-                      height: 50,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isActive ? Colors.green.withValues(alpha: 0.2) : Colors.red.withValues(alpha: 0.2), 
-                          width: 3
+    return GestureDetector(
+      onTap: () => _navigateToDetails(guardian),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade100),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            // Header Section
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: isActive ? primaryColor.withValues(alpha: 0.03) : Colors.red.withValues(alpha: 0.03),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              ),
+              child: Row(
+                children: [
+                  // Avatar with status indicator
+                  Stack(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: isActive 
+                                ? [primaryColor, const Color(0xFF008000)]
+                                : [Colors.red.shade400, Colors.red.shade600],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 26,
+                          backgroundColor: Colors.white,
+                          child: CircleAvatar(
+                            radius: 24,
+                            backgroundColor: Colors.grey[100],
+                            backgroundImage: guardian.photoUrl != null 
+                                ? NetworkImage(guardian.photoUrl!) 
+                                : null,
+                            child: guardian.photoUrl == null 
+                                ? Icon(Icons.person, color: Colors.grey[400], size: 28) 
+                                : null,
+                          ),
                         ),
                       ),
-                    ),
-                    CircleAvatar(
-                      radius: 22,
-                      backgroundColor: Colors.grey[100],
-                      backgroundImage: guardian.photoUrl != null ? NetworkImage(guardian.photoUrl!) : null,
-                      child: guardian.photoUrl == null ? Icon(Icons.person, color: Colors.grey[400]) : null,
-                    ),
-                    Positioned(
-                       right: 0, 
-                       bottom: 0,
-                       child: Container(
-                         padding: const EdgeInsets.all(4),
-                         decoration: BoxDecoration(color: isActive ? Colors.green : Colors.red, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
-                       )
-                    )
-                  ],
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(guardian.shortName, style: const TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold, fontSize: 16), maxLines: 1),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(4),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.1),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: isActive ? primaryColor : Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
                         ),
-                        // Removed '#م' prefix as requested
-                        child: Text(guardian.serialNumber, style: const TextStyle(fontFamily: 'Tajawal', color: Colors.black87, fontSize: 12, fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
-                ),
-
-                // Smart Circles
-                _buildSmartCircle(
-                    title: 'الهوية', 
-                    color: guardian.identityStatusColor,
-                    remainingDays: guardian.identityRemainingDays
-                ),
-                const SizedBox(width: 8),
-                _buildSmartCircle(
-                    title: 'الترخيص', 
-                    color: guardian.licenseStatusColor,
-                    remainingDays: guardian.licenseRemainingDays
-                ),
-                const SizedBox(width: 8),
-                _buildSmartCircle(
-                    title: 'البطاقة', 
-                    color: guardian.cardStatusColor,
-                    remainingDays: guardian.cardRemainingDays
-                ),
-              ],
-            ),
-          ),
-          
-          const Divider(height: 1, indent: 16, endIndent: 16),
-          
-          // Bottom Section: Details Grid & Actions
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              children: [
-                _buildInfoRow('حالة العمل', guardian.employmentStatus ?? '-', isActive ? Colors.green : Colors.red),
-                const SizedBox(height: 6),
-                _buildInfoRow('رقم الترخيص', guardian.licenseNumber ?? '-', Colors.black87),
-                const SizedBox(height: 6),
-                 _buildInfoRow('تاريخ الترخيص', guardian.licenseExpiryDate ?? '-', Colors.black54),
-                 const SizedBox(height: 6),
-                 _buildInfoRow('البطاقة الشخصية', guardian.expiryDate ?? '-', Colors.black54),
-                
-                const SizedBox(height: 12),
-                Row(
-                   mainAxisAlignment: MainAxisAlignment.end,
-                   children: [
-                      // Edit Button
-                      InkWell(
-                        onTap: () => _navigateToEdit(guardian),
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                             color: Colors.blue.withValues(alpha: 0.05),
-                             borderRadius: BorderRadius.circular(6)
+                  const SizedBox(width: 14),
+                  // Name & Serial
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          guardian.shortName,
+                          style: GoogleFonts.tajawal(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Colors.black87,
                           ),
-                          child: const Row(
-                            children: [
-                              Icon(Icons.edit, size: 14, color: Colors.blue),
-                              SizedBox(width: 4),
-                              Text('تعديل', style: TextStyle(fontFamily: 'Tajawal', color: Colors.blue, fontSize: 11, fontWeight: FontWeight.bold))
-                            ],
-                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      // View Button
-                      InkWell(
-                        onTap: () => _navigateToDetails(guardian),
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                             color: Colors.green.withValues(alpha: 0.05),
-                             borderRadius: BorderRadius.circular(6)
-                          ),
-                          child: const Row(
-                            children: [
-                              Icon(Icons.visibility, size: 14, color: Colors.green),
-                              SizedBox(width: 4),
-                              Text('عرض', style: TextStyle(fontFamily: 'Tajawal', color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold))
-                            ],
-                          ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                guardian.serialNumber,
+                                style: GoogleFonts.tajawal(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: isActive ? primaryColor.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                isActive ? 'نشط' : 'متوقف',
+                                style: GoogleFonts.tajawal(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: isActive ? primaryColor : Colors.red,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+                      ],
+                    ),
+                  ),
+                  // Status Circles
+                  Row(
+                    children: [
+                      _buildSmartCircle(
+                        title: 'الهوية',
+                        color: guardian.identityStatusColor,
+                        remainingDays: guardian.identityRemainingDays,
                       ),
-                   ],
-                )
-              ],
+                      const SizedBox(width: 6),
+                      _buildSmartCircle(
+                        title: 'الترخيص',
+                        color: guardian.licenseStatusColor,
+                        remainingDays: guardian.licenseRemainingDays,
+                      ),
+                      const SizedBox(width: 6),
+                      _buildSmartCircle(
+                        title: 'البطاقة',
+                        color: guardian.cardStatusColor,
+                        remainingDays: guardian.cardRemainingDays,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            
+            // Details Section
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: Column(
+                children: [
+                  // Info Rows
+                  _buildInfoRow(
+                    Icons.credit_card,
+                    'رقم الترخيص',
+                    guardian.licenseNumber ?? '-',
+                  ),
+                  const SizedBox(height: 8),
+                  _buildInfoRow(
+                    Icons.event,
+                    'انتهاء الترخيص',
+                    guardian.licenseExpiryDate ?? '-',
+                  ),
+                  const SizedBox(height: 8),
+                  _buildInfoRow(
+                    Icons.badge_outlined,
+                    'انتهاء الهوية',
+                    guardian.expiryDate ?? '-',
+                  ),
+                ],
+              ),
+            ),
+            
+            // Actions Section
+            Container(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: Row(
+                children: [
+                  // View Button
+                  Expanded(
+                    child: _buildCardActionButton(
+                      icon: Icons.visibility_outlined,
+                      label: 'عرض التفاصيل',
+                      color: primaryColor,
+                      onTap: () => _navigateToDetails(guardian),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Edit Button
+                  _buildCardActionButton(
+                    icon: Icons.edit_outlined,
+                    label: 'تعديل',
+                    color: Colors.blue,
+                    onTap: () => _navigateToEdit(guardian),
+                    isOutlined: true,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value, Color valueColor) {
-     return Row(
-       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-       children: [
-         Text(label, style: TextStyle(fontFamily: 'Tajawal', color: Colors.grey[600], fontSize: 12)),
-         Text(value, style: TextStyle(fontFamily: 'Tajawal', color: valueColor, fontSize: 12, fontWeight: FontWeight.bold)),
-       ],
-     );
+  Widget _buildCardActionButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+    bool isOutlined = false,
+  }) {
+    return Material(
+      color: isOutlined ? Colors.transparent : color.withValues(alpha: 0.08),
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: isOutlined
+              ? BoxDecoration(
+                  border: Border.all(color: color.withValues(alpha: 0.3)),
+                  borderRadius: BorderRadius.circular(10),
+                )
+              : null,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: isOutlined ? MainAxisSize.min : MainAxisSize.max,
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: GoogleFonts.tajawal(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.grey[400]),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: GoogleFonts.tajawal(color: Colors.grey[600], fontSize: 12),
+        ),
+        const Spacer(),
+        Text(
+          value,
+          style: GoogleFonts.tajawal(
+            color: Colors.black87,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildSmartCircle({required String title, required Color color, int? remainingDays}) {
