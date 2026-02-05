@@ -87,10 +87,18 @@ class _AdminEntriesListTabState extends State<AdminEntriesListTab> {
         'sort_by': _sortBy,
         'sort_order': _sortAsc ? 'asc' : 'desc',
       };
-      if (_statusFilter != 'all') params['status'] = _statusFilter;
-      if (_hijriYearFilter != null) params['hijri_year'] = '$_hijriYearFilter';
-      if (_contractTypeFilter != null) params['contract_type_id'] = '$_contractTypeFilter';
-      if (_searchQuery.isNotEmpty) params['search'] = _searchQuery;
+      if (_statusFilter != 'all') {
+        params['status'] = _statusFilter;
+      }
+      if (_hijriYearFilter != null) {
+        params['hijri_year'] = '$_hijriYearFilter';
+      }
+      if (_contractTypeFilter != null) {
+        params['contract_type_id'] = '$_contractTypeFilter';
+      }
+      if (_searchQuery.isNotEmpty) {
+        params['search'] = _searchQuery;
+      }
 
       final uri = Uri.parse('${ApiConstants.baseUrl}/admin/registry-entries').replace(queryParameters: params);
 
