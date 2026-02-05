@@ -23,23 +23,20 @@ class AdminGuardianRepository {
     };
     
     if (status != 'all') {
-      // Map English status to Arabic DB values
-      final mappedStatus = status == 'active' ? 'على رأس العمل' : 
-                          (status == 'stopped' ? 'متوقف عن العمل' : status);
-      queryParams['filter[employment_status]'] = mappedStatus;
+      // Use the backend's expected param name
+      queryParams['employment_status'] = status;
     }
     
     if (searchQuery != null && searchQuery.isNotEmpty) {
-      // For now, search by serial number or use a specific filter if configured
-      // Spatie Exact Filter on serial_number
-      queryParams['filter[serial_number]'] = searchQuery;
+      // Use backend's search param
+      queryParams['search'] = searchQuery;
     }
 
     if (includes != null) {
       queryParams['include'] = includes;
     }
 
-    final uri = Uri.parse('${ApiConstants.baseUrl}/guardians')
+    final uri = Uri.parse('${ApiConstants.baseUrl}/admin/guardians')
         .replace(queryParameters: queryParams);
 
     final response = await http.get(
